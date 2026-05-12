@@ -12,8 +12,8 @@ class AuthController extends Controller
 {
     public function loginForm(): View|RedirectResponse
     {
-        if (session()->has('username')) {
-            return redirect()->route('projects.index');
+        if (session()->has('username') && session('server_pid') !== getmypid()) {
+            session()->forget(['username', 'dashboard_access_key', 'server_pid']);
         }
 
         return view('login');
@@ -34,15 +34,33 @@ class AuthController extends Controller
                 ->withInput(['username' => $data['username']]);
         }
 
-        session(['username' => $user->name]);
+        session([
+            'username' => $user->name,
+            'dashboard_access_key' => bin2hex(random_bytes(16)),
+            'dashboard_tab_key' => bin2hex(random_bytes(16)),
+            'server_pid' => getmypid(),
+        ]);
 
-        return redirect()->route('projects.index');
+        return redirect()->route('dashboard', [
+            'access' => session('dashboard_access_key'),
+        ]);
     }
 
     public function logout(): RedirectResponse
     {
-        session()->forget('username');
+        session()->forget(['username', 'dashboard_access_key', 'dashboard_tab_key', 'server_pid']);
 
-        return redirect()->route('login.form');
+        return redirect()
+            ->route('login.form')
+            ->withoutCookie('dashboard_tab');
+    }
+
+    public function dashboardLoginRequired(): RedirectResponse
+    {
+        session()->forget(['username', 'dashboard_access_key', 'dashboard_tab_key', 'server_pid']);
+
+        return redirect()
+            ->route('login.form')
+            ->withoutCookie('dashboard_tab');
     }
 }

@@ -16,9 +16,10 @@ use Illuminate\Database\Eloquent\Model;
     'age_rating',
     'ticket_price',
     'available_seats',
+    'image',
     'description',
 ])]
-class Project extends Model
+class Movie extends Model
 {
     protected function casts(): array
     {
