@@ -161,13 +161,17 @@
     </main>
 
     <script>
+        const dashboardTabKey = @json(session('dashboard_tab_key'));
+        const dashboardUrl = @json(route('dashboard'));
+        const loginRequiredUrl = @json(route('dashboard.login.required'));
+
         if (window.location.search.includes('access=')) {
-            sessionStorage.setItem('dashboard_tab', '{{ session('dashboard_tab_key') }}');
-            window.history.replaceState({}, '', '{{ route('dashboard') }}');
+            sessionStorage.setItem('dashboard_tab', dashboardTabKey);
+            window.history.replaceState({}, '', dashboardUrl);
         }
 
-        if (!window.location.search.includes('access=') && sessionStorage.getItem('dashboard_tab') !== '{{ session('dashboard_tab_key') }}') {
-            window.location.replace('{{ route('dashboard.login.required') }}');
+        if (!window.location.search.includes('access=') && sessionStorage.getItem('dashboard_tab') !== dashboardTabKey) {
+            window.location.replace(loginRequiredUrl);
         } else {
             document.documentElement.classList.remove('dashboard-locked');
         }

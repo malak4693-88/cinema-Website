@@ -560,24 +560,24 @@ textarea {
     align-items: center;
     justify-content: space-between;
     gap: 28px;
-    transition: transform 0.65s ease, box-shadow 0.65s ease, background 0.65s ease;
+    transition: transform 1s ease, box-shadow 1s ease, background 1s ease;
 }
 
 .admin-band:hover {
-    transform: translateY(-4px);
-    background: linear-gradient(135deg, var(--deep), #4a2b58);
-    box-shadow: 0 28px 68px rgba(50, 19, 47, 0.22);
+    transform: translateY(-2px);
+    background: linear-gradient(135deg, var(--deep), #3d2146);
+    box-shadow: 0 24px 62px rgba(50, 19, 47, 0.2);
 }
 
 .admin-band .solid-button {
-    transition: transform 0.55s ease, background 0.55s ease, color 0.55s ease, box-shadow 0.55s ease;
+    transition: transform 0.9s ease, background 0.9s ease, color 0.9s ease, box-shadow 0.9s ease;
 }
 
 .admin-band:hover .solid-button {
-    transform: translateY(-2px);
-    background: rgba(255, 255, 255, 0.92);
+    transform: translateY(-1px);
+    background: rgba(255, 255, 255, 0.86);
     color: var(--deep);
-    box-shadow: 0 14px 30px rgba(255, 255, 255, 0.14);
+    box-shadow: 0 12px 26px rgba(255, 255, 255, 0.12);
 }
 
 .admin-band h2,
