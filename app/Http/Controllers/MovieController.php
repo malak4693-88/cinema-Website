@@ -12,12 +12,38 @@ class MovieController extends Controller
 {
     public function index(Request $request): View
     {
-        return $this->dashboardView($request);
+        $search = $request->query('search');
+
+        $movies = Movie::query()
+            ->when($search, function ($query, string $search): void {
+                $query->where('movie_name', 'like', "%{$search}%")
+                    ->orWhere('genre', 'like', "%{$search}%")
+                    ->orWhere('director', 'like', "%{$search}%")
+                    ->orWhere('language', 'like', "%{$search}%");
+            })
+            ->latest()
+            ->get();
+
+        $totalMovies = Movie::count();
+        $releasedMovies = Movie::whereDate('release_date', '<=', now()->toDateString())->count();
+        $unreleasedMovies = Movie::whereDate('release_date', '>', now()->toDateString())->count();
+
+        return view('movies.index', [
+            'movies' => $movies,
+            'search' => $search,
+            'username' => session('username'),
+            'totalMovies' => $totalMovies,
+            'releasedMovies' => $releasedMovies,
+            'unreleasedMovies' => $unreleasedMovies,
+        ]);
     }
 
-    public function create(): RedirectResponse
+    public function create(): View
     {
-        return redirect()->route('dashboard');
+        return view('movies.form', [
+            'movie' => new Movie(),
+            'username' => session('username'),
+        ]);
     }
 
     public function store(Request $request): RedirectResponse
@@ -32,9 +58,12 @@ class MovieController extends Controller
             ->with('success', 'Movie added successfully.');
     }
 
-    public function edit(Request $request, Movie $movie): View
+    public function edit(Movie $movie): View
     {
-        return $this->dashboardView($request, $movie);
+        return view('movies.form', [
+            'movie' => $movie,
+            'username' => session('username'),
+        ]);
     }
 
     public function update(Request $request, Movie $movie): RedirectResponse
@@ -78,35 +107,6 @@ class MovieController extends Controller
             'available_seats' => ['required', 'integer', 'min:0'],
             'image' => ['nullable', 'image', 'max:2048'],
             'description' => ['nullable', 'string'],
-        ]);
-    }
-
-    private function dashboardView(Request $request, ?Movie $editingMovie = null): View
-    {
-        $search = $request->query('search');
-
-        $movies = Movie::query()
-            ->when($search, function ($query, string $search): void {
-                $query->where('movie_name', 'like', "%{$search}%")
-                    ->orWhere('genre', 'like', "%{$search}%")
-                    ->orWhere('director', 'like', "%{$search}%")
-                    ->orWhere('language', 'like', "%{$search}%");
-            })
-            ->latest()
-            ->get();
-
-        $totalMovies = Movie::count();
-        $releasedMovies = Movie::whereDate('release_date', '<=', now()->toDateString())->count();
-        $unreleasedMovies = Movie::whereDate('release_date', '>', now()->toDateString())->count();
-
-        return view('movies.index', [
-            'movies' => $movies,
-            'search' => $search,
-            'username' => session('username'),
-            'totalMovies' => $totalMovies,
-            'releasedMovies' => $releasedMovies,
-            'unreleasedMovies' => $unreleasedMovies,
-            'editingMovie' => $editingMovie,
         ]);
     }
 

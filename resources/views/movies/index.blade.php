@@ -1,5 +1,5 @@
 <x-layouts.app title="Cinema Dashboard" :username="$username" body-class="site-body dashboard-body">
-    <main id="dashboard-content" class="studio-dashboard {{ isset($editingMovie) || $errors->any() ? 'hidden-form' : '' }}">
+    <main class="studio-dashboard">
         <section class="studio-hero">
             <div>
                 <p class="eyebrow">Cinema Control</p>
@@ -40,44 +40,7 @@
         @if (session('success'))
             <p class="success-message dashboard-success">{{ session('success') }}</p>
         @endif
-    </main>
 
-    <main id="movie-form-page" class="form-page {{ isset($editingMovie) || $errors->any() ? '' : 'hidden-form' }}">
-        <section id="movie-form" class="movie-form-card">
-            <p class="eyebrow">Movie Form</p>
-            <h2>{{ isset($editingMovie) ? 'Edit Movie' : 'Add Movie' }}</h2>
-
-            @if ($errors->any())
-                <ul class="error-list">
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            @endif
-
-            <form class="movie-form" method="POST" action="{{ isset($editingMovie) ? route('movies.update', $editingMovie) : route('movies.store') }}" enctype="multipart/form-data">
-                @csrf
-
-                @if (isset($editingMovie))
-                    @method('PUT')
-                @endif
-
-                @include('movies.form', ['movie' => $editingMovie ?? null])
-
-                <div class="form-actions">
-                    <button class="solid-button" type="submit">{{ isset($editingMovie) ? 'Update' : 'Save' }}</button>
-
-                    @if (isset($editingMovie))
-                        <a class="outline-button" href="{{ route('dashboard') }}">Cancel Edit</a>
-                    @else
-                        <button class="outline-button" type="button" onclick="document.getElementById('movie-form-page').classList.add('hidden-form'); document.getElementById('dashboard-content').classList.remove('hidden-form'); document.getElementById('movie-list-page').classList.remove('hidden-form');">Back</button>
-                    @endif
-                </div>
-            </form>
-        </section>
-    </main>
-
-    <main id="movie-list-page" class="studio-dashboard {{ isset($editingMovie) || $errors->any() ? 'hidden-form' : '' }}">
         <section id="movie-list" class="studio-library">
             <div class="studio-library-head">
                 <div>
@@ -86,7 +49,7 @@
                 </div>
 
                 <div class="library-actions">
-                    <button class="add-movie-button" type="button" onclick="document.getElementById('dashboard-content').classList.add('hidden-form'); document.getElementById('movie-list-page').classList.add('hidden-form'); document.getElementById('movie-form-page').classList.remove('hidden-form'); window.scrollTo({ top: 0, behavior: 'smooth' });">Add New Movie</button>
+                    <a class="add-movie-button" href="{{ route('movies.create') }}">Add New Movie</a>
 
                     <form class="search-form" method="GET" action="{{ route('dashboard') }}">
                         <input type="text" name="search" value="{{ $search }}" placeholder="Search movies">
@@ -116,16 +79,16 @@
                             <tr>
                                 <td>
                                     <div class="studio-poster">
-                            @if ($movie->image)
-                                <img src="{{ str_starts_with($movie->image, 'http') ? $movie->image : asset($movie->image) }}" alt="{{ $movie->movie_name }}">
-                            @else
-                                <span>No Image</span>
-                            @endif
-                        </div>
+                                        @if ($movie->image)
+                                            <img src="{{ str_starts_with($movie->image, 'http') ? $movie->image : asset($movie->image) }}" alt="{{ $movie->movie_name }}">
+                                        @else
+                                            <span>No Image</span>
+                                        @endif
+                                    </div>
                                 </td>
                                 <td>
                                     <strong>{{ $movie->movie_name }}</strong>
-                                    <p>{{ $movie->director }} · {{ $movie->duration }} min · {{ $movie->age_rating }}</p>
+                                    <p>{{ $movie->director }} - {{ $movie->duration }} min - {{ $movie->age_rating }}</p>
                                 </td>
                                 <td>{{ $movie->genre }}</td>
                                 <td>{{ $movie->release_date->format('Y-m-d') }}</td>
@@ -156,7 +119,7 @@
                                     <div class="empty-state">
                                         <h3>No movies found</h3>
                                         <p>Add your first movie to start building the cinema dashboard.</p>
-                                        <button class="solid-button" type="button" onclick="document.getElementById('dashboard-content').classList.add('hidden-form'); document.getElementById('movie-list-page').classList.add('hidden-form'); document.getElementById('movie-form-page').classList.remove('hidden-form'); window.scrollTo({ top: 0, behavior: 'smooth' });">Add Movie</button>
+                                        <a class="solid-button" href="{{ route('movies.create') }}">Add Movie</a>
                                     </div>
                                 </td>
                             </tr>
@@ -166,5 +129,4 @@
             </div>
         </section>
     </main>
-
 </x-layouts.app>
