@@ -1,34 +1,5 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cinema Dashboard</title>
-    <style>
-        .dashboard-locked body {
-            visibility: hidden;
-        }
-    </style>
-    <script>
-        document.documentElement.classList.add('dashboard-locked');
-    </script>
-    <link rel="stylesheet" href="{{ asset('css/cinema.css') }}">
-</head>
-<body class="site-body dashboard-body">
-    <header class="main-header dashboard-header">
-        <a class="brand" href="{{ route('home') }}">Cinema Website</a>
-
-        <nav class="main-nav">
-            <a href="{{ route('home') }}">Home</a>
-            <a href="{{ route('dashboard', ['access' => $dashboardAccess]) }}">Dashboard</a>
-            <form class="nav-form" method="POST" action="{{ route('logout') }}">
-                @csrf
-                <button class="soft-button" type="submit">Logout</button>
-            </form>
-        </nav>
-    </header>
-
-    <main class="studio-dashboard">
+<x-layouts.app title="Cinema Dashboard" :username="$username" body-class="site-body dashboard-body">
+    <main id="dashboard-content" class="studio-dashboard {{ isset($editingMovie) || $errors->any() ? 'hidden-form' : '' }}">
         <section class="studio-hero">
             <div>
                 <p class="eyebrow">Cinema Control</p>
@@ -69,8 +40,45 @@
         @if (session('success'))
             <p class="success-message dashboard-success">{{ session('success') }}</p>
         @endif
+    </main>
 
-        <section class="studio-library">
+    <main id="movie-form-page" class="form-page {{ isset($editingMovie) || $errors->any() ? '' : 'hidden-form' }}">
+        <section id="movie-form" class="movie-form-card">
+            <p class="eyebrow">Movie Form</p>
+            <h2>{{ isset($editingMovie) ? 'Edit Movie' : 'Add Movie' }}</h2>
+
+            @if ($errors->any())
+                <ul class="error-list">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            @endif
+
+            <form class="movie-form" method="POST" action="{{ isset($editingMovie) ? route('movies.update', $editingMovie) : route('movies.store') }}" enctype="multipart/form-data">
+                @csrf
+
+                @if (isset($editingMovie))
+                    @method('PUT')
+                @endif
+
+                @include('movies.form', ['movie' => $editingMovie ?? null])
+
+                <div class="form-actions">
+                    <button class="solid-button" type="submit">{{ isset($editingMovie) ? 'Update' : 'Save' }}</button>
+
+                    @if (isset($editingMovie))
+                        <a class="outline-button" href="{{ route('dashboard') }}">Cancel Edit</a>
+                    @else
+                        <button class="outline-button" type="button" onclick="document.getElementById('movie-form-page').classList.add('hidden-form'); document.getElementById('dashboard-content').classList.remove('hidden-form'); document.getElementById('movie-list-page').classList.remove('hidden-form');">Back</button>
+                    @endif
+                </div>
+            </form>
+        </section>
+    </main>
+
+    <main id="movie-list-page" class="studio-dashboard {{ isset($editingMovie) || $errors->any() ? 'hidden-form' : '' }}">
+        <section id="movie-list" class="studio-library">
             <div class="studio-library-head">
                 <div>
                     <p class="eyebrow">Movie List</p>
@@ -78,13 +86,12 @@
                 </div>
 
                 <div class="library-actions">
-                    <a class="add-movie-button" href="{{ route('movies.create') }}">Add New Movie</a>
+                    <button class="add-movie-button" type="button" onclick="document.getElementById('dashboard-content').classList.add('hidden-form'); document.getElementById('movie-list-page').classList.add('hidden-form'); document.getElementById('movie-form-page').classList.remove('hidden-form'); window.scrollTo({ top: 0, behavior: 'smooth' });">Add New Movie</button>
 
                     <form class="search-form" method="GET" action="{{ route('dashboard') }}">
-                        <input type="hidden" name="access" value="{{ $dashboardAccess }}">
                         <input type="text" name="search" value="{{ $search }}" placeholder="Search movies">
                         <button class="soft-button" type="submit">Search</button>
-                        <a class="clear-link" href="{{ route('dashboard', ['access' => $dashboardAccess]) }}">Clear</a>
+                        <a class="clear-link" href="{{ route('dashboard') }}">Clear</a>
                     </form>
                 </div>
             </div>
@@ -149,7 +156,7 @@
                                     <div class="empty-state">
                                         <h3>No movies found</h3>
                                         <p>Add your first movie to start building the cinema dashboard.</p>
-                                        <a class="solid-button" href="{{ route('movies.create') }}">Add Movie</a>
+                                        <button class="solid-button" type="button" onclick="document.getElementById('dashboard-content').classList.add('hidden-form'); document.getElementById('movie-list-page').classList.add('hidden-form'); document.getElementById('movie-form-page').classList.remove('hidden-form'); window.scrollTo({ top: 0, behavior: 'smooth' });">Add Movie</button>
                                     </div>
                                 </td>
                             </tr>
@@ -160,21 +167,4 @@
         </section>
     </main>
 
-    <script>
-        const dashboardTabKey = @json(session('dashboard_tab_key'));
-        const dashboardUrl = @json(route('dashboard'));
-        const loginRequiredUrl = @json(route('dashboard.login.required'));
-
-        if (window.location.search.includes('access=')) {
-            sessionStorage.setItem('dashboard_tab', dashboardTabKey);
-            window.history.replaceState({}, '', dashboardUrl);
-        }
-
-        if (!window.location.search.includes('access=') && sessionStorage.getItem('dashboard_tab') !== dashboardTabKey) {
-            window.location.replace(loginRequiredUrl);
-        } else {
-            document.documentElement.classList.remove('dashboard-locked');
-        }
-    </script>
-</body>
-</html>
+</x-layouts.app>

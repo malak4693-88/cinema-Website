@@ -16,12 +16,13 @@
             <a href="#about">About</a>
 
             @if ($username)
-                <a href="{{ route('dashboard', ['access' => $dashboardAccess]) }}">Dashboard</a>
+                <a data-authenticated-only href="{{ route('dashboard') }}">Dashboard</a>
 
-                <form class="nav-form" method="POST" action="{{ route('logout') }}">
+                <form data-authenticated-only class="nav-form" method="POST" action="{{ route('logout') }}" onsubmit="sessionStorage.removeItem('dashboard_tab_allowed'); sessionStorage.removeItem('tab_logged_out');">
                     @csrf
                     <button class="soft-button" type="submit">Logout</button>
                 </form>
+                <a data-guest-only class="solid-button" href="{{ route('login.form') }}" hidden>Login</a>
             @else
                 <a class="solid-button" href="{{ route('login.form') }}">Login</a>
             @endif
@@ -37,7 +38,8 @@
 
                 <div class="hero-actions">
                     @if ($username)
-                        <a class="solid-button" href="{{ route('dashboard', ['access' => $dashboardAccess]) }}">Open Dashboard</a>
+                        <a data-authenticated-only class="solid-button" href="{{ route('dashboard') }}">Open Dashboard</a>
+                        <button data-guest-only class="solid-button" type="button" hidden>Book a Ticket</button>
                     @else
                         <button class="solid-button" type="button">Book a Ticket</button>
                     @endif
@@ -138,10 +140,25 @@
 
             @if (! $username)
                 <a class="solid-button" href="{{ route('login.form') }}">Go to Login Page</a>
+            @else
+                <a data-guest-only class="solid-button" href="{{ route('login.form') }}" hidden>Go to Login Page</a>
             @endif
         </section>
     </main>
 
+    <script>
+        if (sessionStorage.getItem('dashboard_tab_allowed') !== 'yes' || sessionStorage.getItem('tab_logged_out') === 'yes') {
+            sessionStorage.setItem('tab_logged_out', 'yes');
+
+            document.querySelectorAll('[data-authenticated-only]').forEach((element) => {
+                element.hidden = true;
+            });
+
+            document.querySelectorAll('[data-guest-only]').forEach((element) => {
+                element.hidden = false;
+            });
+        }
+    </script>
     <script src="{{ asset('js/slider.js') }}"></script>
 </body>
 </html>

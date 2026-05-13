@@ -1,12 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cinema Login</title>
-    <link rel="stylesheet" href="{{ asset('css/cinema.css') }}">
-</head>
-<body class="site-body login-body">
+<x-layouts.app title="Cinema Login" body-class="site-body login-body">
     <main class="login-page">
         <section class="login-card">
             <p class="eyebrow">Admin Area</p>
@@ -21,7 +13,7 @@
                 </ul>
             @endif
 
-            <form class="movie-form" method="POST" action="{{ route('login') }}">
+            <form class="movie-form" method="POST" action="{{ route('login') }}" onsubmit="sessionStorage.setItem('dashboard_tab_allowed', 'yes'); sessionStorage.removeItem('tab_logged_out');">
                 @csrf
 
                 <div>
@@ -41,5 +33,4 @@
             </form>
         </section>
     </main>
-</body>
-</html>
+</x-layouts.app>
