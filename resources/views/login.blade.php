@@ -15,8 +15,8 @@
                 </ul>
             @endif
 
-            {{-- The form sends username/password to AuthController@login and marks this tab as dashboard allowed. --}}
-            <form class="movie-form" method="POST" action="{{ route('login') }}" onsubmit="sessionStorage.setItem('dashboard_tab_allowed', 'yes'); sessionStorage.removeItem('tab_logged_out');">
+            {{-- The form sends username/password to AuthController@login. --}}
+            <form class="movie-form" method="POST" action="{{ route('login') }}">
                 @csrf
 
                 <div>

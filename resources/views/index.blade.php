@@ -17,14 +17,12 @@
             <a href="#about">About</a>
 
             @if ($username)
-                {{-- These links are marked so JavaScript can hide them in unauthorized tabs. --}}
-                <a data-authenticated-only href="{{ route('dashboard') }}">Dashboard</a>
+                <a href="{{ route('dashboard') }}">Dashboard</a>
 
-                <form data-authenticated-only class="nav-form" method="POST" action="{{ route('logout') }}" onsubmit="sessionStorage.removeItem('dashboard_tab_allowed'); sessionStorage.removeItem('tab_logged_out');">
+                <form class="nav-form" method="POST" action="{{ route('logout') }}">
                     @csrf
                     <button class="soft-button" type="submit">Logout</button>
                 </form>
-                <a data-guest-only class="solid-button" href="{{ route('login.form') }}" hidden>Login</a>
             @else
                 <a class="solid-button" href="{{ route('login.form') }}">Login</a>
             @endif
@@ -41,9 +39,7 @@
 
                 <div class="hero-actions">
                     @if ($username)
-                        {{-- If the session is valid in this tab, the admin can open the dashboard. --}}
-                        <a data-authenticated-only class="solid-button" href="{{ route('dashboard') }}">Open Dashboard</a>
-                        <button data-guest-only class="solid-button" type="button" hidden>Book a Ticket</button>
+                        <a class="solid-button" href="{{ route('dashboard') }}">Open Dashboard</a>
                     @else
                         <button class="solid-button" type="button">Book a Ticket</button>
                     @endif
@@ -149,28 +145,10 @@
 
             @if (! $username)
                 <a class="solid-button" href="{{ route('login.form') }}">Go to Login Page</a>
-            @else
-                <a data-guest-only class="solid-button" href="{{ route('login.form') }}" hidden>Go to Login Page</a>
             @endif
         </section>
     </main>
 
-    <script>
-        // If this tab is not allowed, make the home page look logged out even if Laravel session exists.
-        if (sessionStorage.getItem('dashboard_tab_allowed') !== 'yes' || sessionStorage.getItem('tab_logged_out') === 'yes') {
-            sessionStorage.setItem('tab_logged_out', 'yes');
-
-            // Hide dashboard/logout links in unauthorized tabs.
-            document.querySelectorAll('[data-authenticated-only]').forEach((element) => {
-                element.hidden = true;
-            });
-
-            // Show guest links in unauthorized tabs.
-            document.querySelectorAll('[data-guest-only]').forEach((element) => {
-                element.hidden = false;
-            });
-        }
-    </script>
     <script src="{{ asset('js/slider.js') }}"></script>
 </body>
 </html>
