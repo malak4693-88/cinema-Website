@@ -1,10 +1,12 @@
 <x-layouts.app title="Cinema Login" body-class="site-body login-body">
     <main class="login-page">
         <section class="login-card">
+            {{-- Login page heading and short explanation for the admin. --}}
             <p class="eyebrow">Admin Area</p>
             <h1>Cinema Login</h1>
             <p>Login to manage movies, images, seats, and release dates.</p>
 
+            {{-- Show validation errors, for example wrong username or password. --}}
             @if ($errors->any())
                 <ul class="error-list">
                     @foreach ($errors->all() as $error)
@@ -13,6 +15,7 @@
                 </ul>
             @endif
 
+            {{-- The form sends username/password to AuthController@login and marks this tab as dashboard allowed. --}}
             <form class="movie-form" method="POST" action="{{ route('login') }}" onsubmit="sessionStorage.setItem('dashboard_tab_allowed', 'yes'); sessionStorage.removeItem('tab_logged_out');">
                 @csrf
 

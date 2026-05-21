@@ -10,7 +10,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
+// These fields can be saved when creating or updating a user.
 #[Fillable(['name', 'email', 'password'])]
+// These fields are hidden when user data is converted to an array or JSON.
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -25,7 +27,9 @@ class User extends Authenticatable
     protected function casts(): array
     {
         return [
+            // Convert email verification value to a date/time object.
             'email_verified_at' => 'datetime',
+            // Automatically hash the password before saving it.
             'password' => 'hashed',
         ];
     }

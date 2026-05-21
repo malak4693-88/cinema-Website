@@ -1,10 +1,12 @@
 <x-layouts.app :title="$movie->exists ? 'Edit Movie' : 'Add Movie'" :username="$username" body-class="site-body dashboard-body">
     <main class="form-page">
         <section class="movie-form-card">
+            {{-- The same form page is used for both adding and editing movies. --}}
             <p class="eyebrow">Cinema Dashboard</p>
             <h1>{{ $movie->exists ? 'Edit Movie' : 'Add Movie' }}</h1>
             <p>Welcome, {{ $username }}</p>
 
+            {{-- Validation errors appear here if the form data is not correct. --}}
             @if ($errors->any())
                 <ul class="error-list">
                     @foreach ($errors->all() as $error)
@@ -13,13 +15,16 @@
                 </ul>
             @endif
 
+            {{-- If the movie exists, submit to update. Otherwise, submit to store. --}}
             <form class="movie-form" method="POST" action="{{ $movie->exists ? route('movies.update', $movie) : route('movies.store') }}" enctype="multipart/form-data">
                 @csrf
 
+                {{-- PUT is required only when editing an existing movie. --}}
                 @if ($movie->exists)
                     @method('PUT')
                 @endif
 
+                {{-- old() keeps entered values after validation errors. --}}
                 <div>
                     <label for="movie_name">Movie Name</label>
                     <input id="movie_name" type="text" name="movie_name" value="{{ old('movie_name', $movie->movie_name ?? '') }}">
@@ -29,6 +34,7 @@
                     <label for="genre">Genre</label>
                     <select id="genre" name="genre">
                         @php($selectedGenre = old('genre', $movie->genre ?? ''))
+                        {{-- Genre dropdown helps keep genre values clean and consistent. --}}
                         <option value="">Choose genre</option>
                         @foreach (['Action', 'Adventure', 'Animation', 'Comedy', 'Crime', 'Drama', 'Fantasy', 'Horror', 'Mystery', 'Romance', 'Science Fiction', 'Thriller', 'Documentary'] as $genre)
                             <option value="{{ $genre }}" @selected($selectedGenre === $genre)>{{ $genre }}</option>
@@ -55,6 +61,7 @@
                     <label for="language">Language</label>
                     <select id="language" name="language">
                         @php($selectedLanguage = old('language', $movie->language ?? ''))
+                        {{-- Language dropdown gives common language choices. --}}
                         <option value="">Choose language</option>
                         @foreach (['Arabic', 'English', 'French', 'Spanish', 'Italian', 'German', 'Turkish', 'Hindi', 'Japanese', 'Korean', 'Chinese'] as $language)
                             <option value="{{ $language }}" @selected($selectedLanguage === $language)>{{ $language }}</option>
@@ -86,6 +93,7 @@
                     <label for="image">Movie Image</label>
                     <input id="image" type="file" name="image" accept="image/*">
 
+                    {{-- When editing, show the current image so the admin knows what is already saved. --}}
                     @if ($movie->exists && $movie->image)
                         <div class="current-image">
                             <img src="{{ str_starts_with($movie->image, 'http') ? $movie->image : asset($movie->image) }}" alt="{{ $movie->movie_name }}">
@@ -100,6 +108,7 @@
                 </div>
 
                 <div class="form-actions">
+                    {{-- Button text changes depending on add or edit mode. --}}
                     <button class="solid-button" type="submit">{{ $movie->exists ? 'Update Movie' : 'Save Movie' }}</button>
                     <a class="outline-button" href="{{ route('dashboard') }}">Back</a>
                 </div>

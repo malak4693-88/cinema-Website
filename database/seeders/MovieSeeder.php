@@ -12,6 +12,7 @@ class MovieSeeder extends Seeder
      */
     public function run(): void
     {
+        // Remove old sample/fake movies before adding the real sample movies.
         Movie::whereIn('movie_name', [
             'Midnight Horizon',
             'The Violet Room',
@@ -22,6 +23,7 @@ class MovieSeeder extends Seeder
             'dwd',
         ])->delete();
 
+        // This array contains real movie records used to fill the movies table.
         $movies = [
             [
                 'movie_name' => 'Inception',
@@ -137,8 +139,10 @@ class MovieSeeder extends Seeder
             ],
         ];
 
+        // Insert each movie, or update it if the same movie name already exists.
         foreach ($movies as $movie) {
             Movie::updateOrCreate(
+                // Movie name is used to avoid creating duplicate movie rows.
                 ['movie_name' => $movie['movie_name']],
                 $movie
             );

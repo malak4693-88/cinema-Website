@@ -22,6 +22,7 @@
     display: none !important;
 }
 
+/* Utility class used to completely hide a page section when needed. */
 .hidden-form {
     display: none !important;
 }

@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="{{ asset('css/cinema.css') }}">
 </head>
 <body class="site-body">
+    {{-- Public navbar: shows Login for guests and Dashboard/Logout for logged-in users. --}}
     <header class="main-header">
         <a class="brand" href="{{ route('home') }}">Cinema Website</a>
 
@@ -16,6 +17,7 @@
             <a href="#about">About</a>
 
             @if ($username)
+                {{-- These links are marked so JavaScript can hide them in unauthorized tabs. --}}
                 <a data-authenticated-only href="{{ route('dashboard') }}">Dashboard</a>
 
                 <form data-authenticated-only class="nav-form" method="POST" action="{{ route('logout') }}" onsubmit="sessionStorage.removeItem('dashboard_tab_allowed'); sessionStorage.removeItem('tab_logged_out');">
@@ -30,6 +32,7 @@
     </header>
 
     <main>
+        {{-- Hero section: first area the visitor sees on the home page. --}}
         <section class="hero-section">
             <div class="hero-copy">
                 <p class="eyebrow">Cinema nights, softly curated</p>
@@ -38,6 +41,7 @@
 
                 <div class="hero-actions">
                     @if ($username)
+                        {{-- If the session is valid in this tab, the admin can open the dashboard. --}}
                         <a data-authenticated-only class="solid-button" href="{{ route('dashboard') }}">Open Dashboard</a>
                         <button data-guest-only class="solid-button" type="button" hidden>Book a Ticket</button>
                     @else
@@ -53,6 +57,7 @@
             </div>
         </section>
 
+        {{-- Movie slider: displays latest movies sent from routes/web.php. --}}
         <section id="movies" class="slider-section coverflow-section">
             <p class="eyebrow centered">Now Showing</p>
             <h2>Movie Gallery</h2>
@@ -74,6 +79,7 @@
                     @forelse ($latestMovies as $movie)
                         <article class="slide-card">
                             <div class="slide-image">
+                                {{-- Use the movie image if it exists, otherwise use a default cinema image. --}}
                                 @if ($movie->image)
                                     <img src="{{ str_starts_with($movie->image, 'http') ? $movie->image : asset($movie->image) }}" alt="{{ $movie->movie_name }}">
                                 @else
@@ -87,6 +93,7 @@
                             </div>
                         </article>
                     @empty
+                        {{-- Default slides appear when there are no movies in the database yet. --}}
                         <article class="slide-card">
                             <div class="slide-image">
                                 <img src="https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=900&q=80" alt="Cinema hall">
@@ -116,6 +123,7 @@
             <div class="slider-dots" data-slider-dots></div>
         </section>
 
+        {{-- About section explains the purpose of the cinema website. --}}
         <section id="about" class="about-section">
             <div class="about-visual">
                 <img src="https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?auto=format&fit=crop&w=900&q=80" alt="Cinema seats">
@@ -134,6 +142,7 @@
             </div>
         </section>
 
+        {{-- Admin section explains that movie management is protected by login/session. --}}
         <section class="admin-band">
             <h2>Admin Area</h2>
             <p>The dashboard is protected by session validation. Only logged in users can add, edit, delete, search movies, and upload movie images.</p>
@@ -147,13 +156,16 @@
     </main>
 
     <script>
+        // If this tab is not allowed, make the home page look logged out even if Laravel session exists.
         if (sessionStorage.getItem('dashboard_tab_allowed') !== 'yes' || sessionStorage.getItem('tab_logged_out') === 'yes') {
             sessionStorage.setItem('tab_logged_out', 'yes');
 
+            // Hide dashboard/logout links in unauthorized tabs.
             document.querySelectorAll('[data-authenticated-only]').forEach((element) => {
                 element.hidden = true;
             });
 
+            // Show guest links in unauthorized tabs.
             document.querySelectorAll('[data-guest-only]').forEach((element) => {
                 element.hidden = false;
             });

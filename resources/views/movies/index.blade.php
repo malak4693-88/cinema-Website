@@ -1,5 +1,6 @@
 <x-layouts.app title="Cinema Dashboard" :username="$username" body-class="site-body dashboard-body">
     <main class="studio-dashboard">
+        {{-- Dashboard header: explains the page and shows the logged-in admin username. --}}
         <section class="studio-hero">
             <div>
                 <p class="eyebrow">Cinema Control</p>
@@ -13,6 +14,7 @@
             </div>
         </section>
 
+        {{-- Statistics cards are calculated in MovieController@index. --}}
         <section class="studio-stats">
             <article>
                 <div>
@@ -37,10 +39,12 @@
             </article>
         </section>
 
+        {{-- Success message appears after create, update, or delete. --}}
         @if (session('success'))
             <p class="success-message dashboard-success">{{ session('success') }}</p>
         @endif
 
+        {{-- Movie list area: add button, search form, and table of movies. --}}
         <section id="movie-list" class="studio-library">
             <div class="studio-library-head">
                 <div>
@@ -51,6 +55,7 @@
                 <div class="library-actions">
                     <a class="add-movie-button" href="{{ route('movies.create') }}">Add New Movie</a>
 
+                    {{-- Search uses GET so the search word appears in the URL. --}}
                     <form class="search-form" method="GET" action="{{ route('dashboard') }}">
                         <input type="text" name="search" value="{{ $search }}" placeholder="Search movies">
                         <button class="soft-button" type="submit">Search</button>
@@ -75,6 +80,7 @@
                         </tr>
                     </thead>
                     <tbody>
+                        {{-- Loop through all movies returned from the controller. --}}
                         @forelse ($movies as $movie)
                             <tr>
                                 <td>
@@ -88,6 +94,7 @@
                                 </td>
                                 <td>
                                     <strong>{{ $movie->movie_name }}</strong>
+                                    {{-- Show small details under the movie name. --}}
                                     <p>{{ $movie->director }} - {{ $movie->duration }} min - {{ $movie->age_rating }}</p>
                                 </td>
                                 <td>{{ $movie->genre }}</td>
@@ -96,6 +103,7 @@
                                 <td>{{ $movie->ticket_price }}</td>
                                 <td>{{ $movie->available_seats }}</td>
                                 <td>
+                                    {{-- The status depends on whether the release date is in the future. --}}
                                     @if ($movie->release_date->isFuture())
                                         <span class="status-pill upcoming">Upcoming</span>
                                     @else
@@ -103,6 +111,7 @@
                                     @endif
                                 </td>
                                 <td>
+                                    {{-- Edit opens the shared form page, delete submits a DELETE request. --}}
                                     <div class="action-buttons compact-actions">
                                         <a class="soft-button" href="{{ route('movies.edit', $movie) }}">Edit</a>
                                         <form method="POST" action="{{ route('movies.destroy', $movie) }}">
@@ -114,6 +123,7 @@
                                 </td>
                             </tr>
                         @empty
+                            {{-- Empty state appears if there are no movies or no search results. --}}
                             <tr>
                                 <td colspan="9">
                                     <div class="empty-state">
