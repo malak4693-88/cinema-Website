@@ -2,8 +2,10 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\MovieController;
+use App\Http\Controllers\Auth\GoogleController;
 use App\Models\Movie;
 use Illuminate\Support\Facades\Route;
+
 
 // This route shows the public home page of the cinema website.
 Route::get('/', function () {
@@ -23,6 +25,9 @@ Route::get('/login', [AuthController::class, 'loginForm'])->name('login.form');
 Route::post('/login', [AuthController::class, 'login'])->name('login');
 // This route logs the user out and clears the session username.
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+// Google login routes
+Route::get('/auth/google', [GoogleController::class, 'redirectToGoogle'])->name('login.google');
+Route::get('/auth/google/callback', [GoogleController::class, 'handleGoogleCallback'])->name('login.google.callback');
 
 // These routes are protected, so only a logged-in user with a username session can access them.
 Route::middleware('username.session')->group(function () {

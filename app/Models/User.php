@@ -11,7 +11,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 // These fields can be saved when creating or updating a user.
-#[Fillable(['name', 'email', 'password'])]
+#[Fillable(['name', 'email', 'password', 'google_id'])]
 // These fields are hidden when user data is converted to an array or JSON.
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable

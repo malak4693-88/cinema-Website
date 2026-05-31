@@ -34,6 +34,13 @@
                     <a class="outline-button" href="{{ route('home') }}">Home</a>
                 </div>
             </form>
+
+            <div class="google-login-wrap">
+                <a href="{{ route('login.google') }}" class="btn btn-danger google-login-button">
+                    <i class="fab fa-google"></i>
+                    Login with Google
+                </a>
+            </div>
         </section>
     </main>
 </x-layouts.app>
