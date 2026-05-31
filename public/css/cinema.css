@@ -1061,6 +1061,98 @@ textarea {
     font-size: 11px;
 }
 
+.tmdb-panel {
+    margin: 28px 0;
+    padding: 24px;
+    border-radius: 24px;
+    background: rgba(237, 232, 247, 0.72);
+    border: 1px solid rgba(111, 95, 168, 0.16);
+}
+
+.tmdb-panel h2 {
+    margin: 8px 0;
+    color: var(--deep);
+    font-size: 28px;
+}
+
+.tmdb-search-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 12px;
+    margin-top: 18px;
+}
+
+.tmdb-search-row input {
+    min-height: 46px;
+    border: 1px solid rgba(32, 22, 38, 0.16);
+    border-radius: 14px;
+    padding: 12px 14px;
+    background: rgba(255, 255, 255, 0.86);
+    color: var(--ink);
+}
+
+.tmdb-message {
+    margin: 14px 0 0;
+    color: #28583b;
+    font-family: Arial, sans-serif;
+    font-weight: 700;
+}
+
+.tmdb-message.is-error {
+    color: var(--danger);
+}
+
+.tmdb-results {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 14px;
+    margin-top: 18px;
+}
+
+.tmdb-result-card {
+    border: 1px solid rgba(50, 19, 47, 0.14);
+    border-radius: 18px;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.82);
+    color: var(--deep);
+    cursor: pointer;
+    text-align: left;
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.tmdb-result-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(111, 95, 168, 0.42);
+    box-shadow: 0 18px 34px rgba(50, 19, 47, 0.16);
+}
+
+.tmdb-result-card img,
+.tmdb-result-card span {
+    width: 100%;
+    aspect-ratio: 2 / 3;
+    border-radius: 14px;
+    object-fit: cover;
+    background: var(--mist);
+}
+
+.tmdb-result-card span {
+    display: grid;
+    place-items: center;
+    color: var(--muted);
+    font-family: Arial, sans-serif;
+}
+
+.tmdb-result-card strong,
+.tmdb-result-card small {
+    display: block;
+    margin-top: 8px;
+    font-family: Arial, sans-serif;
+}
+
+.tmdb-result-card small {
+    color: var(--muted);
+}
+
 .form-actions {
     display: flex;
     flex-wrap: wrap;

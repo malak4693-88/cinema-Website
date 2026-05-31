@@ -33,6 +33,9 @@ Route::get('/auth/google/callback', [GoogleController::class, 'handleGoogleCallb
 Route::middleware('username.session')->group(function () {
     // This route shows the dashboard with movie list, search, and statistics.
     Route::get('/dashboard', [MovieController::class, 'index'])->name('dashboard');
+    // These routes use TMDb API to search movies and fill the movie form.
+    Route::get('/movies/tmdb/search', [MovieController::class, 'tmdbSearch'])->name('movies.tmdb.search');
+    Route::get('/movies/tmdb/{tmdbId}', [MovieController::class, 'tmdbDetails'])->name('movies.tmdb.details');
     // This route opens the add movie form.
     Route::get('/movies/create', [MovieController::class, 'create'])->name('movies.create');
     // This route saves a new movie in the database.

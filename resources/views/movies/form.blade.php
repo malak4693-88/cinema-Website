@@ -6,6 +6,22 @@
             <h1>{{ $movie->exists ? 'Edit Movie' : 'Add Movie' }}</h1>
             <p>Welcome, {{ $username }}</p>
 
+            <section class="tmdb-panel">
+                <div>
+                    <p class="eyebrow">TMDb API</p>
+                    <h2>Search Movie From TMDb</h2>
+                    <p>Search by movie name, choose a result, and the form will fill automatically.</p>
+                </div>
+
+                <div class="tmdb-search-row">
+                    <input id="tmdb-search-input" type="text" placeholder="Example: Inception">
+                    <button class="soft-button" id="tmdb-search-button" type="button">Search TMDb</button>
+                </div>
+
+                <p id="tmdb-message" class="tmdb-message" hidden></p>
+                <div id="tmdb-results" class="tmdb-results"></div>
+            </section>
+
             {{-- Validation errors appear here if the form data is not correct. --}}
             @if ($errors->any())
                 <ul class="error-list">
@@ -18,6 +34,7 @@
             {{-- If the movie exists, submit to update. Otherwise, submit to store. --}}
             <form class="movie-form" method="POST" action="{{ $movie->exists ? route('movies.update', $movie) : route('movies.store') }}" enctype="multipart/form-data">
                 @csrf
+                <input type="hidden" name="image" id="image" value="{{ old('image', $movie->image ?? '') }}">
 
                 {{-- PUT is required only when editing an existing movie. --}}
                 @if ($movie->exists)
@@ -90,16 +107,14 @@
                 </div>
 
                 <div>
-                    <label for="image">Movie Image</label>
-                    <input id="image" type="file" name="image" accept="image/*">
+                    <label for="image_file">Movie Image</label>
+                    <input id="image_file" type="file" name="image_file" accept="image/*">
 
-                    {{-- When editing, show the current image so the admin knows what is already saved. --}}
-                    @if ($movie->exists && $movie->image)
-                        <div class="current-image">
-                            <img src="{{ str_starts_with($movie->image, 'http') ? $movie->image : asset($movie->image) }}" alt="{{ $movie->movie_name }}">
-                            <span>Current image</span>
-                        </div>
-                    @endif
+                    @php($posterPreview = old('image', $movie->image ?? ''))
+                    <div id="tmdb-image-preview" class="current-image" @if (! $posterPreview) hidden @endif>
+                        <img id="tmdb-image-preview-img" src="{{ $posterPreview ? (str_starts_with($posterPreview, 'http') ? $posterPreview : asset($posterPreview)) : '' }}" alt="Movie poster preview">
+                        <span>{{ $posterPreview && str_starts_with($posterPreview, 'http') ? 'TMDb poster' : 'Current image' }}</span>
+                    </div>
                 </div>
 
                 <div>
@@ -115,4 +130,136 @@
             </form>
         </section>
     </main>
+
+    <script>
+        const tmdbSearchUrl = @json(route('movies.tmdb.search'));
+        const tmdbDetailsUrl = @json(url('/movies/tmdb'));
+        const tmdbSearchInput = document.getElementById('tmdb-search-input');
+        const tmdbSearchButton = document.getElementById('tmdb-search-button');
+        const tmdbResults = document.getElementById('tmdb-results');
+        const tmdbMessage = document.getElementById('tmdb-message');
+
+        const escapeHtml = (value) => String(value || '').replace(/[&<>"']/g, (character) => ({
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#039;'
+        }[character]));
+
+        const setTmdbMessage = (message, isError = false) => {
+            tmdbMessage.hidden = !message;
+            tmdbMessage.textContent = message;
+            tmdbMessage.classList.toggle('is-error', isError);
+        };
+
+        const setInputValue = (id, value) => {
+            const input = document.getElementById(id);
+
+            if (input && value !== null && value !== undefined && value !== '') {
+                if (input.tagName === 'SELECT' && !Array.from(input.options).some((option) => option.value === value)) {
+                    input.add(new Option(value, value));
+                }
+
+                input.value = value;
+            }
+        };
+
+        const fillMovieForm = (movie) => {
+            const posterUrl = movie.poster_url || movie.image;
+
+            setInputValue('movie_name', movie.movie_name);
+            setInputValue('genre', movie.genre);
+            setInputValue('duration', movie.duration);
+            setInputValue('release_date', movie.release_date);
+            setInputValue('release_place', movie.release_place);
+            setInputValue('language', movie.language);
+            setInputValue('director', movie.director);
+            setInputValue('age_rating', movie.age_rating);
+            setInputValue('image', posterUrl);
+
+            if (posterUrl) {
+                document.getElementById('tmdb-image-preview-img').src = posterUrl;
+                document.getElementById('tmdb-image-preview').hidden = false;
+            }
+
+            if (movie.description) {
+                document.getElementById('description').value = movie.description;
+            }
+
+            setTmdbMessage('Movie details added to the form. You can edit anything before saving.');
+        };
+
+        const loadMovieDetails = async (tmdbId) => {
+            setTmdbMessage('Loading movie details...');
+
+            try {
+                const response = await fetch(`${tmdbDetailsUrl}/${tmdbId}`, {
+                    headers: {
+                        Accept: 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.message || 'Could not load movie details.');
+                }
+
+                fillMovieForm(await response.json());
+            } catch (error) {
+                setTmdbMessage(error.message, true);
+            }
+        };
+
+        tmdbSearchButton.addEventListener('click', async () => {
+            const query = tmdbSearchInput.value.trim();
+
+            if (query.length < 2) {
+                setTmdbMessage('Please type at least 2 letters.', true);
+                return;
+            }
+
+            setTmdbMessage('Searching TMDb...');
+            tmdbResults.innerHTML = '';
+
+            try {
+                const response = await fetch(`${tmdbSearchUrl}?query=${encodeURIComponent(query)}`, {
+                    headers: {
+                        Accept: 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.message || 'TMDb search failed. Check your API key.');
+                }
+
+                const movies = await response.json();
+
+                if (!movies.length) {
+                    setTmdbMessage('No movies found.', true);
+                    return;
+                }
+
+                setTmdbMessage('Choose one movie to fill the form.');
+                tmdbResults.innerHTML = movies.map((movie) => `
+                    <button class="tmdb-result-card" type="button" data-tmdb-id="${movie.id}">
+                        ${movie.poster_url ? `<img src="${escapeHtml(movie.poster_url)}" alt="${escapeHtml(movie.title)}">` : '<span>No Poster</span>'}
+                        <strong>${escapeHtml(movie.title)}</strong>
+                        <small>${escapeHtml(movie.release_date || 'No release date')}</small>
+                    </button>
+                `).join('');
+            } catch (error) {
+                setTmdbMessage(error.message, true);
+            }
+        });
+
+        tmdbResults.addEventListener('click', (event) => {
+            const card = event.target.closest('[data-tmdb-id]');
+
+            if (card) {
+                loadMovieDetails(card.dataset.tmdbId);
+            }
+        });
+    </script>
 </x-layouts.app>
